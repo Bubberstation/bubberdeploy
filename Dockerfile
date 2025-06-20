@@ -1,6 +1,8 @@
-FROM ubuntu:24.04
+FROM debian:bookworm-slim
 
 ENV DEBIAN_FRONTEND=noninteractive
+
+ENV RUSTUP_INIT_SKIP_PATH_CHECK=yes
 
 RUN dpkg --add-architecture i386
 
@@ -21,21 +23,20 @@ RUN apt-get update && apt-get install -y \
     dpkg \
     git \
     build-essential \
-    cargo \
     zlib1g-dev:i386 \
-    git
+    git \
+    gcc-multilib \
+    g++-multilib
 
 RUN curl https://sh.rustup.rs -sSfo rustup-init.sh && \
     chmod +x rustup-init.sh && \
     ./rustup-init.sh -y && \
     . "$HOME/.cargo/env" && \
-    rustup target add i686-unknown-linux-gnu
-    
-
-RUN git clone https://github.com/tgstation/rust-g && cd ./rust-g  &&\
+    rustup target add i686-unknown-linux-gnu && \
+    git clone https://github.com/tgstation/rust-g && cd ./rust-g  &&\
     export PKG_CONFIG_ALLOW_CROSS=1 && \
-    cargo build --release --target i686-unknown-linux-gnu
-
+    RUSTFLAGS="-C target-cpu=native" && cargo build --release --target i686-unknown-linux-gnu
+    
 # Actually download TGS
 RUN sudo apt update \
     && sudo apt install -y software-properties-common \
