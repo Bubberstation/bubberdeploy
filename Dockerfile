@@ -42,24 +42,28 @@ RUN sudo apt update \
     && sudo apt install -y software-properties-common \
     && sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv B6FD15EE7ED77676EAEAF910EEEDC8280A307527 \
     && sudo add-apt-repository -y "deb https://tgstation.github.io/tgstation-ppa/debian unstable main" \
-    && sudo apt update \
-    && sudo apt install -y tgstation-server \
-    && sudo tgs-configure \
-    && sudo systemctl start tgstation-server
+    && sudo apt update
 
-# Add Node.js official repo and install
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get update && apt-get install -y nodejs npm
+# Add Node.js official repo and install ## Deprecated, BUN is the future
+# Download and install nvm:
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash \
+
+    # in lieu of restarting the shell
+    && \. "$HOME/.nvm/nvm.sh"\
+    
+    # Download and install Node.js:
+    && nvm install 22
+    
 
 # Set pip config
 RUN python3 -m pip config set global.break-system-packages true
 
 # Install ripgrep via cargo
-RUN cargo install ripgrep --features pcre2 --version 14.0.3
+#RUN apt install cargo -y && cargo install ripgrep --features pcre2
 
 # Install dotnet SDK
-RUN wget https://packages.microsoft.com/config/ubuntu/24.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb && \
-    dpkg -i packages-microsoft-prod.deb && \
+RUN wget https://packages.microsoft.com/config/debian/12/packages-microsoft-prod.deb -O packages-microsoft-prod.deb && \
+    dpkg -i ./packages-microsoft-prod.deb && \
     apt-get update && \
     apt-get install -y dotnet-sdk-8.0
 
