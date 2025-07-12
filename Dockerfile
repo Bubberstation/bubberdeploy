@@ -19,6 +19,7 @@ RUN apt-get update && apt-get install -y \
     python3 \
     python3-pip \
     libc6:i386 \
+    libcurl4-openssl-dev:i386 \
     libstdc++6:i386 \
     dpkg \
     git \
@@ -71,6 +72,12 @@ RUN echo 'tgstation-server ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
 
 # Create non-root user
 RUN useradd -ms /bin/bash tgstation-server && echo "tgstation-server:tgstation-server" | chpasswd && adduser tgstation-server sudo
+
 USER tgstation-server
 WORKDIR /home/tgstation-server
 
+RUN git clone https://github.com/bubberstation/bubberstation && wget https://www.byond.com/download/build/516/516.1666_byond_linux.zip
+
+
+RUN unzip *byond*.zip && ls && cd ./byond/ && make here && sudo make install && . ~/byond/bin/byondsetup \
+    && ../bubberstation/tools/build/build.sh
